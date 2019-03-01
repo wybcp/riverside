@@ -1,8 +1,9 @@
-package simple_client
+package main
 
 import (
 	"context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"log"
 	pb "riverside/go-grpc-example/proto"
 )
@@ -10,7 +11,12 @@ import (
 const PORT = "9001"
 
 func main() {
-	conn, err := grpc.Dial(":"+PORT, grpc.WithInsecure())
+	c, err := credentials.NewClientTLSFromFile("src/riverside/go-grpc-example/conf/server.pem", "wyb")
+	if err != nil {
+		log.Fatalf("credentials.NewClientTLSFromFile err:", err)
+	}
+
+	conn, err := grpc.Dial(":"+PORT, grpc.WithTransportCredentials(c))
 	if err != nil {
 		log.Fatalf("grpc.Dial err:%v", err)
 	}
@@ -21,7 +27,7 @@ func main() {
 		Request: "gRPC",
 	})
 	if err != nil {
-		log.Fatalf("client search err:%v", err)
+		log.Fatalf("client.Search err:%v", err)
 	}
 	log.Printf("response :%s", resp.GetResponse())
 }
