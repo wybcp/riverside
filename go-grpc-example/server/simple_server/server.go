@@ -5,9 +5,10 @@ import (
 	"google.golang.org/grpc/credentials"
 	"log"
 	"net"
+	"riverside/go-grpc-example/interceptor"
 
 	pb "riverside/go-grpc-example/proto"
-
+	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 )
 
@@ -28,7 +29,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("credentials.NewClientTLSFromFile err:", err)
 	}
-	server := grpc.NewServer(grpc.Creds(c))
+	opts:=[]grpc.ServerOption{
+		grpc.Creds(c),
+		grpc_middleware.WithUnaryServerChain(
+			interceptor.LoggingInterceptor,
+			interceptor.RecoveryInterceptor,
+			),
+	}
+	server := grpc.NewServer(opts...)
 	pb.RegisterSearchServiceServer(server, &SearchService{})
 	lis, err := net.Listen("tcp", ":"+PORT)
 	if err != nil {
