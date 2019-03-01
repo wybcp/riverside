@@ -3,11 +3,13 @@ package main
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc/credentials"
 	"io"
 	"io/ioutil"
 	"log"
 	"net"
+	"riverside/go-grpc-example/interceptor"
 	pb "riverside/go-grpc-example/proto"
 
 	"google.golang.org/grpc"
@@ -37,8 +39,15 @@ func main() {
 		ClientAuth:tls.RequireAndVerifyClientCert,
 		ClientCAs:certPool,
 	})
+	opts:=[]grpc.ServerOption{
+		grpc.Creds(c),
+		grpc_middleware.WithStreamServerChain(
+			interceptor.LoggingStreamInterceptor,
+			interceptor.RecoveryStreamInterceptor,
+		),
+	}
 
-	server := grpc.NewServer(grpc.Creds(c))
+	server := grpc.NewServer(opts...)
 	pb.RegisterStreamServiceServer(server, &StreamService{})
 	lis, err := net.Listen("tcp", ":"+PORT)
 	if err != nil {

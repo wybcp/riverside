@@ -1,29 +1,30 @@
 package interceptor
 
 import (
-	"context"
+
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"log"
-	"google.golang.org/grpc"
 	"runtime/debug"
 )
 
-func LoggingInterceptor(ctx context.Context,req interface{},info *grpc.UnaryServerInfo,handler grpc.UnaryHandler)(interface{}, error){
-	log.Printf("gRPC method: %s,%v",info.FullMethod,req)
-	resp,err:=handler(ctx,req)
-	log.Printf("gRPC method: %s,%v",info.FullMethod,resp)
-	return resp,err
+func LoggingStreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	log.Printf("before handling.gRPC method: %s", info.FullMethod)
+	err := handler(srv, ss)
+	log.Printf("after handling.gRPC method: %s,err: %v", info.FullMethod, err)
+	return err
 }
-func RecoveryInterceptor(ctx context.Context,req interface{},info *grpc.UnaryServerInfo,handler grpc.UnaryHandler)(resp interface{},err error){
-	log.Printf("gRPC method: %s,%v",info.FullMethod,req)
-
-	log.Printf("gRPC method: %s,%v",info.FullMethod,resp)
+func RecoveryStreamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) (err error) {
+	log.Printf("before handling.gRPC method: %s", info.FullMethod)
 	defer func() {
-		if e:=recover();e!=nil{
+		if e := recover(); e != nil {
 			debug.PrintStack()
-			err=status.Errorf(codes.Internal,"panic err:%v",e)
+			err = status.Errorf(codes.Internal, "panic err:%v", e)
 		}
 	}()
-	return handler(ctx,req)
+	err = handler(srv, ss)
+	log.Printf("after handling.gRPC method: %s,%v", info.FullMethod, err)
+
+	return
 }
