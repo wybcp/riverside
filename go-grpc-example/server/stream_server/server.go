@@ -1,7 +1,11 @@
 package main
 
 import (
+	"crypto/tls"
+	"crypto/x509"
+	"google.golang.org/grpc/credentials"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	pb "riverside/go-grpc-example/proto"
@@ -15,7 +19,26 @@ type StreamService struct {
 }
 
 func main() {
-	server := grpc.NewServer()
+	cert,err:=tls.LoadX509KeyPair("src/riverside/go-grpc-example/conf/server.pem","src/riverside/go-grpc-example/conf/server.key")
+	if err != nil {
+		log.Fatalf("tls.LoadX509KeyPair err:%v",err)
+	}
+	certPool:=x509.NewCertPool()
+	ca,err:=ioutil.ReadFile("src/riverside/go-grpc-example/conf/ca.pem")
+	if err != nil {
+		log.Fatalf("ioutil.ReadFile err:%v",err)
+	}
+	if ok:=certPool.AppendCertsFromPEM(ca);!ok{
+		log.Fatal("certPool.AppendCertsFromPEM err")
+	}
+
+	c:=credentials.NewTLS(&tls.Config{
+		Certificates:[]tls.Certificate{cert},
+		ClientAuth:tls.RequireAndVerifyClientCert,
+		ClientCAs:certPool,
+	})
+
+	server := grpc.NewServer(grpc.Creds(c))
 	pb.RegisterStreamServiceServer(server, &StreamService{})
 	lis, err := net.Listen("tcp", ":"+PORT)
 	if err != nil {
