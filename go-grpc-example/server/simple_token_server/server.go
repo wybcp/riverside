@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"github.com/spf13/viper"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 	"riverside/go-grpc-example/pkg/ginit"
 
 	"log"
@@ -16,48 +14,16 @@ import (
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	pb "riverside/go-grpc-example/proto"
 )
 
 // SearchService 结构
 type SearchService struct {
-	auth *Auth
+
 }
 
-type Auth struct {
-	appKey string
-	appSecret string
-}
 
-func (a *Auth)Check(ctx context.Context) error {
-	md,ok:=metadata.FromIncomingContext(ctx)
-	if !ok{
-		return status.Errorf(codes.Unauthenticated,"自定义认证 token 失败 ，没有传入token信息")
-	}
-	var appKey  string
-	var appSecret string
-	if value,ok:=md["app_key"];ok {
-		appKey=value[0]
-	}
-	if value,ok:=md["app_secret"];ok {
-		appSecret=value[0]
-	}
-	if appKey!=a.GetAppKey()||appSecret!=a.GetAppSecret() {
-		return status.Errorf(codes.Unauthenticated,"自定义认证 token 失败，token信息不匹配")
-	}
-	return nil
-}
-func (a *Auth)GetAppKey()string  {
-	return viper.GetString("token.APP_KEY")
-}
-func (a *Auth)GetAppSecret()string  {
-	return viper.GetString("token.APP_SECRET")
-}
 func (s *SearchService) Search(ctx context.Context, r *pb.SearchRequest) (*pb.SearchResponse, error) {
-	if err:=s.auth.Check(ctx);err!=nil {
-		return nil,err
-	}
 	return &pb.SearchResponse{Response: r.GetRequest() + "token Server"}, nil
 }
 
@@ -82,6 +48,7 @@ func main() {
 		grpc_middleware.WithUnaryServerChain(
 			interceptor.LoggingInterceptor,
 			interceptor.RecoveryInterceptor,
+			interceptor.TokenInterceptor,
 		),
 	}
 	mux := GetHTTPServerMux()
