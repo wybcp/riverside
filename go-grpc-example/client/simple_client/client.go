@@ -3,17 +3,21 @@ package main
 import (
 	"context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"log"
+	"riverside/go-grpc-example/pkg/gtls"
 	pb "riverside/go-grpc-example/proto"
 )
 
 const PORT = "9001"
 
 func main() {
-	c, err := credentials.NewClientTLSFromFile("src/riverside/go-grpc-example/conf/server.pem", "wyb")
+	clientTLS:=gtls.ClientTLS{
+		CertFile:"src/riverside/go-grpc-example/conf/server.pem",
+		ServerName:"wyb",
+	}
+	c, err := clientTLS.GetTLSCredentials()
 	if err != nil {
-		log.Fatalf("credentials.NewClientTLSFromFile err:", err)
+		log.Fatalf("clientTLS.GetTLSCredentials err:", err)
 	}
 
 	conn, err := grpc.Dial(":"+PORT, grpc.WithTransportCredentials(c))

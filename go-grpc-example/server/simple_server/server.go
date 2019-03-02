@@ -2,14 +2,14 @@ package main
 
 import (
 	"context"
-	"google.golang.org/grpc/credentials"
 	"log"
 	"net"
 	"riverside/go-grpc-example/interceptor"
+	"riverside/go-grpc-example/pkg/gtls"
 
-	pb "riverside/go-grpc-example/proto"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
+	pb "riverside/go-grpc-example/proto"
 )
 
 // SearchService 结构
@@ -23,18 +23,24 @@ func (s *SearchService) Search(ctx context.Context, r *pb.SearchRequest) (*pb.Se
 	return &pb.SearchResponse{Response: r.GetRequest() + " Server"}, nil
 }
 
-
 func main() {
-	c, err := credentials.NewServerTLSFromFile("src/riverside/go-grpc-example/conf/server.pem", "src/riverside/go-grpc-example/conf/server.key")
-	if err != nil {
-		log.Fatalf("credentials.NewClientTLSFromFile err:", err)
+	certFle := "src/riverside/go-grpc-example/conf/server.pem"
+	keyFile := "src/riverside/go-grpc-example/conf/server.key"
+	tlsServer := gtls.ServerTLS{
+		CertFile: certFle,
+		KeyFile:  keyFile,
 	}
-	opts:=[]grpc.ServerOption{
+	c, err := tlsServer.GetTLSCredentials()
+	if err != nil {
+		log.Fatalf("tlsServer.GetTLSCredentials err:", err)
+	}
+
+	opts := []grpc.ServerOption{
 		grpc.Creds(c),
 		grpc_middleware.WithUnaryServerChain(
 			interceptor.LoggingInterceptor,
 			interceptor.RecoveryInterceptor,
-			),
+		),
 	}
 	server := grpc.NewServer(opts...)
 	pb.RegisterSearchServiceServer(server, &SearchService{})

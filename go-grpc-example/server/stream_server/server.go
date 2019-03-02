@@ -1,15 +1,12 @@
 package main
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"google.golang.org/grpc/credentials"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"riverside/go-grpc-example/interceptor"
+	"riverside/go-grpc-example/pkg/gtls"
 	pb "riverside/go-grpc-example/proto"
 
 	"google.golang.org/grpc"
@@ -21,25 +18,16 @@ type StreamService struct {
 }
 
 func main() {
-	cert,err:=tls.LoadX509KeyPair("src/riverside/go-grpc-example/conf/server.pem","src/riverside/go-grpc-example/conf/server.key")
+	serverTLS := gtls.ServerTLS{
+		CertFile: "src/riverside/go-grpc-example/conf/server.pem",
+		KeyFile:  "src/riverside/go-grpc-example/conf/server.key",
+		CaFile:   "src/riverside/go-grpc-example/conf/ca.pem",
+	}
+	c, err := serverTLS.GetTLSCredentialsByCA()
 	if err != nil {
-		log.Fatalf("tls.LoadX509KeyPair err:%v",err)
+		log.Fatalf("serverTLS.GetTLSCredentialsByCA err:%v", err)
 	}
-	certPool:=x509.NewCertPool()
-	ca,err:=ioutil.ReadFile("src/riverside/go-grpc-example/conf/ca.pem")
-	if err != nil {
-		log.Fatalf("ioutil.ReadFile err:%v",err)
-	}
-	if ok:=certPool.AppendCertsFromPEM(ca);!ok{
-		log.Fatal("certPool.AppendCertsFromPEM err")
-	}
-
-	c:=credentials.NewTLS(&tls.Config{
-		Certificates:[]tls.Certificate{cert},
-		ClientAuth:tls.RequireAndVerifyClientCert,
-		ClientCAs:certPool,
-	})
-	opts:=[]grpc.ServerOption{
+	opts := []grpc.ServerOption{
 		grpc.Creds(c),
 		grpc_middleware.WithStreamServerChain(
 			interceptor.LoggingStreamInterceptor,
@@ -72,35 +60,35 @@ func (s *StreamService) List(r *pb.StreamRequest, stream pb.StreamService_ListSe
 }
 
 func (s *StreamService) Record(stream pb.StreamService_RecordServer) error {
-	for   {
-		r,err:=stream.Recv()
-		if err==io.EOF {
-			return stream.SendAndClose(&pb.StreamResponse{Pt:&pb.StreamPoint{Name:"gRPC Stream Server: Record",Value:1}})
+	for {
+		r, err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(&pb.StreamResponse{Pt: &pb.StreamPoint{Name: "gRPC Stream Server: Record", Value: 1}})
 		}
-		if err!=nil{
+		if err != nil {
 			return err
 		}
-		log.Printf("Stream.Recv pt.Name:%s,pt.Value:%d",r.Pt.Name,r.Pt.Value)
+		log.Printf("Stream.Recv pt.Name:%s,pt.Value:%d", r.Pt.Name, r.Pt.Value)
 	}
 	return nil
 }
 
 func (s *StreamService) Route(stream pb.StreamService_RouteServer) error {
-	n:=0
-	for  {
+	n := 0
+	for {
 		//发送
-		err:=stream.Send(&pb.StreamResponse{
-			Pt:&pb.StreamPoint{
-				Name:"gRPC Stream Client:Route",
-				Value:int32(n),
+		err := stream.Send(&pb.StreamResponse{
+			Pt: &pb.StreamPoint{
+				Name:  "gRPC Stream Client:Route",
+				Value: int32(n),
 			},
 		})
 		if err != nil {
 			return err
 		}
-	//	接收
-		r,err:=stream.Recv()
-		if err==io.EOF {
+		//	接收
+		r, err := stream.Recv()
+		if err == io.EOF {
 			return nil
 		}
 		if err != nil {
@@ -108,7 +96,7 @@ func (s *StreamService) Route(stream pb.StreamService_RouteServer) error {
 		}
 
 		n++
-		log.Printf("Stream.Recv pt.Name:%s,pt.Value:%d",r.Pt.Name,r.Pt.Value)
+		log.Printf("Stream.Recv pt.Name:%s,pt.Value:%d", r.Pt.Name, r.Pt.Value)
 
 	}
 	return nil
