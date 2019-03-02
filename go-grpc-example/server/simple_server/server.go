@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/spf13/viper"
+	"google.golang.org/grpc"
 	"log"
 	"net"
 	"riverside/go-grpc-example/interceptor"
+	"riverside/go-grpc-example/pkg/ginit"
 	"riverside/go-grpc-example/pkg/gtls"
-
-	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"google.golang.org/grpc"
 	pb "riverside/go-grpc-example/proto"
 )
 
@@ -16,20 +17,22 @@ import (
 type SearchService struct {
 }
 
-// PORT 服务端口
-const PORT = "9001"
 
 func (s *SearchService) Search(ctx context.Context, r *pb.SearchRequest) (*pb.SearchResponse, error) {
 	return &pb.SearchResponse{Response: r.GetRequest() + " Server"}, nil
 }
 
 func main() {
-	certFle := "src/riverside/go-grpc-example/conf/server.pem"
-	keyFile := "src/riverside/go-grpc-example/conf/server.key"
-	tlsServer := gtls.ServerTLS{
-		CertFile: certFle,
-		KeyFile:  keyFile,
+	err:= ginit.InitViper()
+	if err != nil {
+		log.Fatalf("init.InitViper err:", err)
 	}
+	tlsServer := gtls.ServerTLS{
+		CertFile: viper.GetString("tls.CERT_FILE"),
+		KeyFile:  viper.GetString("tls.KEY_FILE"),
+	}
+	//log.Fatal(viper.GetString("server.CERT_FILE"))
+
 	c, err := tlsServer.GetTLSCredentials()
 	if err != nil {
 		log.Fatalf("tlsServer.GetTLSCredentials err:", err)
@@ -44,7 +47,7 @@ func main() {
 	}
 	server := grpc.NewServer(opts...)
 	pb.RegisterSearchServiceServer(server, &SearchService{})
-	lis, err := net.Listen("tcp", ":"+PORT)
+	lis, err := net.Listen("tcp", ":"+viper.GetString("port.SIMPLE"))
 	if err != nil {
 		log.Fatalf("net.Listen err: %v", err)
 	}

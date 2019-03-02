@@ -38,7 +38,6 @@ func (s *ServerTLS) GetTLSCredentialsByCA() (credentials.TransportCredentials, e
 func (s *ServerTLS) GetTLSCredentials() (credentials.TransportCredentials, error) {
 	c, err := credentials.NewServerTLSFromFile(s.CertFile, s.KeyFile)
 	if err != nil {
-		//log.Fatalf("credentials.NewClientTLSFromFile err:", err)
 		return nil, err
 	}
 

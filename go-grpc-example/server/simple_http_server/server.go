@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"github.com/spf13/viper"
+	"riverside/go-grpc-example/pkg/ginit"
 
 	"log"
 
@@ -19,16 +21,19 @@ import (
 type SearchService struct {
 }
 
-// PORT 服务端口
-const PORT = "9003"
 
 func (s *SearchService) Search(ctx context.Context, r *pb.SearchRequest) (*pb.SearchResponse, error) {
 	return &pb.SearchResponse{Response: r.GetRequest() + " Server"}, nil
 }
 
 func main() {
-	certFle := "src/riverside/go-grpc-example/conf/server.pem"
-	keyFile := "src/riverside/go-grpc-example/conf/server.key"
+	err:= ginit.InitViper()
+	if err != nil {
+		log.Fatalf("init.InitViper err:", err)
+	}
+	certFle := viper.GetString("tls.CERT_FILE")
+	keyFile := viper.GetString("tls.KEY_FILE")
+
 	tlsServer := gtls.ServerTLS{
 		CertFile: certFle,
 		KeyFile:  keyFile,
@@ -48,7 +53,7 @@ func main() {
 	server := grpc.NewServer(opts...)
 
 	pb.RegisterSearchServiceServer(server, &SearchService{})
-	err = http.ListenAndServeTLS(":"+PORT,
+	err = http.ListenAndServeTLS(":"+viper.GetString("port.SIMPLE_HTTP"),
 		certFle,
 		keyFile,
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

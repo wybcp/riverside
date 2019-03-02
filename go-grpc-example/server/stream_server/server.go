@@ -2,26 +2,32 @@ package main
 
 import (
 	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/spf13/viper"
 	"io"
 	"log"
 	"net"
 	"riverside/go-grpc-example/interceptor"
+	"riverside/go-grpc-example/pkg/ginit"
 	"riverside/go-grpc-example/pkg/gtls"
 	pb "riverside/go-grpc-example/proto"
 
 	"google.golang.org/grpc"
 )
 
-const PORT = "9002"
+
 
 type StreamService struct {
 }
 
 func main() {
+	err:= ginit.InitViper()
+	if err != nil {
+		log.Fatalf("init.InitViper err:", err)
+	}
 	serverTLS := gtls.ServerTLS{
-		CertFile: "src/riverside/go-grpc-example/conf/server.pem",
-		KeyFile:  "src/riverside/go-grpc-example/conf/server.key",
-		CaFile:   "src/riverside/go-grpc-example/conf/ca.pem",
+		CertFile: viper.GetString("tls.CERT_FILE"),
+		KeyFile:  viper.GetString("tls.KEY_FILE"),
+		CaFile:   viper.GetString("tls.CA_FILE"),
 	}
 	c, err := serverTLS.GetTLSCredentialsByCA()
 	if err != nil {
@@ -37,7 +43,7 @@ func main() {
 
 	server := grpc.NewServer(opts...)
 	pb.RegisterStreamServiceServer(server, &StreamService{})
-	lis, err := net.Listen("tcp", ":"+PORT)
+	lis, err := net.Listen("tcp", ":"+viper.GetString("port.STREAM"))
 	if err != nil {
 		log.Fatalf("net listen err:%v", err)
 	}

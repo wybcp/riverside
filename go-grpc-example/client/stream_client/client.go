@@ -2,29 +2,32 @@ package main
 
 import (
 	"context"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"io"
 	"log"
+	"riverside/go-grpc-example/pkg/ginit"
 	"riverside/go-grpc-example/pkg/gtls"
 	pb "riverside/go-grpc-example/proto"
 )
 
-const PORT = "9002"
-
 func main() {
-	clientTLS:=gtls.ClientTLS{
-		CertFile:"src/riverside/go-grpc-example/conf/server.pem",
-		KeyFile:"src/riverside/go-grpc-example/conf/server.key",
-		CaFile:"src/riverside/go-grpc-example/conf/ca.pem",
-		ServerName:"wyb",
+	err:= ginit.InitViper()
+	if err != nil {
+		log.Fatalf("init.InitViper err:", err)
 	}
-
+	clientTLS:=gtls.ClientTLS{
+		CertFile:viper.GetString("tls.CERT_FILE"),
+		KeyFile:viper.GetString("tls.KEY_FILE"),
+		CaFile:viper.GetString("tls.CA_FILE"),
+		ServerName:viper.GetString("tls.SERVER_NAME"),
+	}
 
 	c ,err:= clientTLS.GetTLSCredentialsByCA()
 	if err != nil {
 		log.Fatalf("clientTLS.GetTLSCredentialsByCA err:%v",err)
 	}
-	conn, err := grpc.Dial(":"+PORT, grpc.WithTransportCredentials(c))
+	conn, err := grpc.Dial(":"+viper.GetString("port.STREAM"), grpc.WithTransportCredentials(c))
 	if err != nil {
 		log.Fatalf("grpc dial err:%v", err)
 	}

@@ -2,24 +2,28 @@ package main
 
 import (
 	"context"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"log"
+	"riverside/go-grpc-example/pkg/ginit"
 	"riverside/go-grpc-example/pkg/gtls"
 	pb "riverside/go-grpc-example/proto"
 )
 
-const PORT = "9003"
-
 func main() {
-	clientTLS:=gtls.ClientTLS{
-		CertFile:"src/riverside/go-grpc-example/conf/server.pem",
-		ServerName:"wyb",
+	err:= ginit.InitViper()
+	if err != nil {
+		log.Fatalf("init.InitViper err:", err)
+	}
+	clientTLS := gtls.ClientTLS{
+		CertFile:   viper.GetString("tls.CERT_FILE"),
+		ServerName: viper.GetString("tls.SERVER_NAME"),
 	}
 	c, err := clientTLS.GetTLSCredentials()
 	if err != nil {
 		log.Fatalf("clientTLS.GetTLSCredentials err:", err)
 	}
-	conn, err := grpc.Dial(":"+PORT, grpc.WithTransportCredentials(c))
+	conn, err := grpc.Dial(":"+viper.GetString("port.SIMPLE_HTTP"), grpc.WithTransportCredentials(c))
 	if err != nil {
 		log.Fatalf("grpc.Dial err:%v", err)
 	}
