@@ -12,6 +12,10 @@ tls:
   CA_FILE:
   SERVER_NAME:
 
+#token
+token:
+  APP_KEY: riverside
+  APP_SECRET: riverside_password
 
 # [database]
 # 127.0.0.1:3306
