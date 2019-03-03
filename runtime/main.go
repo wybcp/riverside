@@ -21,8 +21,8 @@ func main() {
 	runtime.GC()
 	log.Println(len(m))
 	printMemStats()
-	for i:=range m{
-		delete(m,i)
+	for i := range m {
+		delete(m, i)
 	}
 	log.Println(len(m))
 	runtime.GC()

@@ -34,12 +34,9 @@ func main() {
 	defer conn.Close()
 
 	//deadline
-	d:=time.Now().Add(time.Duration(20*time.Second))
+	d:=time.Now().Add(time.Duration(5*time.Second))
 	ctx,cancel:=context.WithDeadline(context.Background(),d)
-	defer func() {
-		log.Println("client sent deadline cancel signal")
-		cancel()
-	}()
+	defer cancel()
 
 	client := pb.NewSearchServiceClient(conn)
 	resp, err := client.Search(ctx, &pb.SearchRequest{

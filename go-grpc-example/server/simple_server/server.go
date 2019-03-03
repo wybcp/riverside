@@ -20,7 +20,6 @@ type SearchService struct {
 }
 
 func (s *SearchService) Search(ctx context.Context, r *pb.SearchRequest) (*pb.SearchResponse, error) {
-
 	if ctx.Err() == context.Canceled {
 		log.Println("server receive cancel signal")
 		return nil, status.Errorf(codes.Canceled, "SearchService Search canceled")

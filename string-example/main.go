@@ -49,6 +49,7 @@ func rangeString() {
 	fmt.Printf("\n一个字符串的字符数:%d", utf8.RuneCountInString(s))
 
 }
+
 // Format 系列函数把其他类型的转换为字符串
 func strConv() {
 	a := strconv.FormatBool(false)
