@@ -28,8 +28,7 @@ func gcdx(x, y int) int {
 	for {
 		tmp := x % y
 		if tmp > 0 {
-			x = y
-			y = tmp
+			x ,y= y,tmp
 		} else {
 			return y
 		}
