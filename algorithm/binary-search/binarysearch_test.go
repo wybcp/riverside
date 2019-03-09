@@ -47,24 +47,19 @@ func TestBinarySearchLast(t *testing.T) {
 }
 
 func TestBinarySearchFirstGT(t *testing.T) {
-	var a []int
-
-	a = []int{1, 2, 2, 2, 3, 4}
+	a := []int{1, 2, 2, 2, 3, 4}
 	if BinarySearchFirstGT(a, 2) != 4 {
 		t.Fatal(BinarySearchFirstGT(a, 2))
 	}
 
-	a = []int{1, 2, 2, 2, 3, 4}
 	if BinarySearchFirstGT(a, 1) != 1 {
 		t.Fatal(BinarySearchFirstGT(a, 1))
 	}
 
-	a = []int{1, 2, 2, 2, 3, 4}
 	if BinarySearchFirstGT(a, 3) != 5 {
 		t.Fatal(BinarySearchFirstGT(a, 3))
 	}
 
-	a = []int{1, 2, 2, 2, 3, 4}
 	if BinarySearchFirstGT(a, 4) != -1 {
 		t.Fatal(BinarySearchFirstGT(a, 4))
 	}
