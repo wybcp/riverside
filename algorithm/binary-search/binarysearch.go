@@ -1,17 +1,19 @@
-package main
+package binarysearch
 
+// 二分查找
+
+// BinarySearch 二分查找
 func BinarySearch(a []int, v int) int {
-	n := len(a)
-	if n == 0 {
+	if len(a) == 0 {
 		return -1
 	}
 
 	low := 0
-	high := n - 1
+	high := len(a) - 1
 	for low <= high {
 		//防止数值太大溢出
 		//mid := (low + high) / 2
-		mid := low+(high- low) / 2
+		mid := low + (high-low)/2
 		if a[mid] == v {
 			return mid
 		} else if a[mid] > v {
@@ -20,25 +22,22 @@ func BinarySearch(a []int, v int) int {
 			low = mid + 1
 		}
 	}
-
 	return -1
 }
 
+//BinarySearchRecursive 递归二分查找
 func BinarySearchRecursive(a []int, v int) int {
-	n := len(a)
-	if n == 0 {
+	if len(a) == 0 {
 		return -1
 	}
-
-	return bs(a, v, 0, n-1)
+	return bs(a, v, 0, len(a)-1)
 }
 
 func bs(a []int, v int, low, high int) int {
 	if low > high {
 		return -1
 	}
-
-	mid := (low + high) / 2
+	mid := low + (high-low)/2
 	if a[mid] == v {
 		return mid
 	} else if a[mid] > v {
@@ -48,7 +47,7 @@ func bs(a []int, v int, low, high int) int {
 	}
 }
 
-//查找第一个等于给定值的元素
+//BinarySearchFirst 查找第一个等于给定值的元素
 func BinarySearchFirst(a []int, v int) int {
 	n := len(a)
 	if n == 0 {
@@ -75,7 +74,7 @@ func BinarySearchFirst(a []int, v int) int {
 	return -1
 }
 
-//查找最后一个值等于给定值的元素
+//BinarySearchLast 查找最后一个值等于给定值的元素
 func BinarySearchLast(a []int, v int) int {
 	n := len(a)
 	if n == 0 {
@@ -102,7 +101,7 @@ func BinarySearchLast(a []int, v int) int {
 	return -1
 }
 
-//查找第一个大于等于给定值的元素
+//BinarySearchFirstGT 查找第一个大于等于给定值的元素
 func BinarySearchFirstGT(a []int, v int) int {
 	n := len(a)
 	if n == 0 {
@@ -129,7 +128,7 @@ func BinarySearchFirstGT(a []int, v int) int {
 	return -1
 }
 
-//查找最后一个小于等于给定值的元素
+//BinarySearchLastLT 查找最后一个小于等于给定值的元素
 func BinarySearchLastLT(a []int, v int) int {
 	n := len(a)
 	if n == 0 {

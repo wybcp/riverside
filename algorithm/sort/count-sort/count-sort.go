@@ -18,6 +18,7 @@ func CountSort(data []int) []int {
 	}
 
 	fmt.Println("最大值：", max)
+	// 8
 
 	newData := make([]int, max+1)
 	//计算每个元素的个数
@@ -25,11 +26,14 @@ func CountSort(data []int) []int {
 		newData[v]++
 	}
 	fmt.Println(newData)
+	// [1,2,1,1,1,1,2,1,1]
+
 	// 依次累加，求得次序
 	for i := 1; i <= max; i++ {
 		newData[i] += newData[i-1]
 	}
 	fmt.Println(newData)
+	// [1,3,4,5,6,7,9,10,11]
 
 	tmp := make([]int, len(data))
 	n := len(data) - 1
