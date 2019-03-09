@@ -4,3 +4,5 @@ grpc-gateway-example
 scanner
 *.
 simple_http_client
+*.log
+main.go
