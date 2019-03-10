@@ -1,17 +1,20 @@
-package _4_tree
+package tree
 
 import "fmt"
 
+// Node 树节点
 type Node struct {
 	data  interface{}
 	left  *Node
 	right *Node
 }
 
+// NewNode 创建新节点
 func NewNode(data interface{}) *Node {
 	return &Node{data: data}
 }
 
-func (this *Node) String() string {
-	return fmt.Sprintf("v:%+v, left:%+v, right:%+v", this.data, this.left, this.right)
+//String 字符串输出
+func (n *Node) String() string {
+	return fmt.Sprintf("v:%+v, left:%+v, right:%+v", n.data, n.left, n.right)
 }

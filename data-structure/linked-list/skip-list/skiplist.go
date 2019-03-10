@@ -1,4 +1,4 @@
-package _7_skiplist
+package skiplist
 
 import (
 	"fmt"
@@ -25,7 +25,12 @@ type skipListNode struct {
 
 //新建跳表节点
 func newSkipListNode(v interface{}, score, level int) *skipListNode {
-	return &skipListNode{v: v, score: score, forwards: make([]*skipListNode, level, level), level: level}
+	return &skipListNode{
+		v: v,
+		score:    score,
+		forwards: make([]*skipListNode, level, level),
+		level:    level
+	}
 }
 
 //跳表结构体
@@ -57,7 +62,7 @@ func (sl *SkipList) Level() int {
 
 //插入节点到跳表中
 func (sl *SkipList) Insert(v interface{}, score int) int {
-	if nil == v {
+	if v==nil {
 		return 1
 	}
 

@@ -1,4 +1,4 @@
-package _7_skiplist
+package skiplist
 
 import "testing"
 

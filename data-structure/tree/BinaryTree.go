@@ -1,97 +1,48 @@
-package _4_tree
+package tree
 
-import "fmt"
+import (
+	"fmt"
+)
 
+// BinaryTree 二叉树
 type BinaryTree struct {
 	root *Node
 }
 
+// NewBinaryTree 构建二叉树
 func NewBinaryTree(rootV interface{}) *BinaryTree {
 	return &BinaryTree{NewNode(rootV)}
 }
 
-func (b *BinaryTree) InOrderTraverse() {
-	p := b.root
-	s := NewArrayStack()
-
-	for !s.IsEmpty() || nil != p {
-		if nil != p {
-			s.Push(p)
-			p = p.left
-		} else {
-			tmp := s.Pop().(*Node)
-			fmt.Printf("%+v ", tmp.data)
-			p = tmp.right
-		}
+// PreOrderTraverse 前序遍历 中左右
+func (b *BinaryTree) PreOrderTraverse(n *Node) {
+	fmt.Printf("%+v ", n.data)
+	if n.left != nil {
+		b.PreOrderTraverse(n.left)
 	}
-	fmt.Println()
-}
-
-func (b *BinaryTree) PreOrderTraverse() {
-	p := b.root
-	s := NewArrayStack()
-
-	for !s.IsEmpty() || nil != p {
-		if nil != p {
-			fmt.Printf("%+v ", p.data)
-			s.Push(p)
-			p = p.left
-		} else {
-			p = s.Pop().(*Node).right
-		}
-	}
-
-	fmt.Println()
-}
-
-func (b *BinaryTree) PostOrderTraverse() {
-	s1 := NewArrayStack()
-	s2 := NewArrayStack()
-	s1.Push(b.root)
-	for !s1.IsEmpty() {
-		p := s1.Pop().(*Node)
-		s2.Push(p)
-		if nil != p.left {
-			s1.Push(p.left)
-		}
-		if nil != p.right {
-			s1.Push(p.right)
-		}
-	}
-
-	for !s2.IsEmpty() {
-		fmt.Printf("%+v ", s2.Pop().(*Node).data)
+	if n.right != nil {
+		b.PreOrderTraverse(n.right)
 	}
 }
 
-//use one stack, pre cursor to traverse from post order
-func (b *BinaryTree) PostOrderTraverse2() {
-	r := b.root
-	s := NewArrayStack()
-
-	//point to last visit node
-	var pre *Node
-
-	s.Push(r)
-
-	for !s.IsEmpty() {
-		r = s.Top().(*Node)
-		if (r.left == nil && r.right == nil) ||
-			(pre != nil && (pre == r.left || pre == r.right)) {
-
-			fmt.Printf("%+v ", r.data)
-			s.Pop()
-			pre = r
-		} else {
-			if r.right != nil {
-				s.Push(r.right)
-			}
-
-			if r.left != nil {
-				s.Push(r.left)
-			}
-
-		}
-
+// InOrderTraverse 中序遍历，递归写法，左中右
+func (b *BinaryTree) InOrderTraverse(n *Node) {
+	if n.left != nil {
+		b.InOrderTraverse(n.left)
 	}
+	fmt.Printf("%+v ", n.data)
+	if n.right != nil {
+		b.InOrderTraverse(n.right)
+	}
+}
+
+// PostOrderTraverse 后序遍历，递归写法，左右中
+func (b *BinaryTree) PostOrderTraverse(n *Node) {
+	if n.left != nil {
+		b.PostOrderTraverse(n.left)
+	}
+	if n.right != nil {
+		b.PostOrderTraverse(n.right)
+	}
+	fmt.Printf("%+v ", n.data)
 }
