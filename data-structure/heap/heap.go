@@ -1,84 +1,103 @@
 package heap
 
+// Heap 堆结构，包括一个slice，slice的初始化容量，堆节点个数
 type Heap struct {
 	a     []int
 	n     int
 	count int
 }
 
-//init heap
+//NewHeap init heap
 func NewHeap(capacity int) *Heap {
-	heap := &Heap{}
-	heap.n = capacity
-	heap.a = make([]int, capacity+1)
-	heap.count = 0
-	return heap
+	return &Heap{
+		a: make([]int, capacity+1),
+		n: capacity,
+	}
 }
 
-//top-max heap -> heapify from down to up
-func (heap *Heap) insert(data int) {
+// Insert 插入 大顶堆 从下往上的堆化方法。 top-max heap -> heapify from down to up
+func (h *Heap) Insert(v int) {
 	//defensive
-	if heap.count == heap.n {
+	if h.count == h.n {
 		return
 	}
 
-	heap.count++
-	heap.a[heap.count] = data
+	h.count++
+	i := h.count
+	// 把值放到堆最后
+	h.a[i] = v
 
 	//compare with parent node
-	i := heap.count
 	parent := i / 2
-	for parent > 0 && heap.a[parent] < heap.a[i] {
-		swap(heap.a, parent, i)
+	for parent > 0 && h.a[parent] < h.a[i] {
+		h.swap(parent, i)
 		i = parent
 		parent = i / 2
 	}
 }
 
-//heapify from up to down
-func (heap *Heap) removeMax() {
-
+//RemoveMax 大顶堆 heapify from up to down
+func (h *Heap) RemoveMax() {
 	//defensive
-	if heap.count == 0 {
+	if h.count == 0 {
 		return
 	}
 
 	//swap max and last
-	swap(heap.a, 1, heap.count)
-	heap.count--
+	h.swap(1, h.count)
+	// 交换之后归0
+	h.a[h.count] = 0
+
+	h.count--
 
 	//heapify from up to down
-	heapifyUpToDown(heap.a, heap.count)
+	h.HeapifyUpToDown()
 }
 
-//heapify
-func heapifyUpToDown(a []int, count int) {
-
-	for i := 1; i <= count/2; {
-
-		maxIndex := i
-		if a[i] < a[i*2] {
-			maxIndex = i * 2
-		}
-
-		if i*2+1 <= count && a[maxIndex] < a[i*2+1] {
-			maxIndex = i*2 + 1
-		}
-
+//HeapifyUpToDown heapify
+func (h *Heap) HeapifyUpToDown() {
+	for i := 1; i <= h.count/2; {
+		maxIndex := h.threeMax(i)
 		if maxIndex == i {
 			break
 		}
 
-		swap(a, i, maxIndex)
+		h.swap(i, maxIndex)
 		i = maxIndex
 	}
 
 }
 
+// 堆化过程中比较 节点及左右子节点的大小
+func (h *Heap) threeMax(i int) (maxIndex int) {
+	maxIndex = i
+	if h.a[i] < h.a[i*2] {
+		maxIndex = i * 2
+	}
+
+	if i*2+1 <= h.count && h.a[maxIndex] < h.a[i*2+1] {
+		maxIndex = i*2 + 1
+	}
+	return maxIndex
+}
+
 //swap two elements
-func swap(a []int, i int, j int) {
-	a[i],a[j]=a[j],a[i]
-	//tmp := a[i]
-	//a[i] = a[j]
-	//a[j] = tmp
+func (h *Heap) swap(i int, j int) {
+	h.a[i], h.a[j] = h.a[j], h.a[i]
+}
+
+//Sort sort by ascend, a index begin from 1, has n elements
+func (h *Heap) Sort() {
+	//defensive
+	if h.count == 0 {
+		return
+	}
+
+	k := h.count
+	for h.count >= 1 {
+		h.swap(1, h.count)
+		h.count--
+		h.HeapifyUpToDown()
+	}
+	h.count = k
 }
