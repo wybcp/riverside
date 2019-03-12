@@ -1,4 +1,4 @@
-package _8_stack
+package stack
 
 import "testing"
 

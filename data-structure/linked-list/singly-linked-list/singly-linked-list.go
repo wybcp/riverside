@@ -1,33 +1,32 @@
-package main
+package simplylinkedlist
 
-import (
-	"fmt"
-)
+import "fmt"
 
-type Object interface{}
-
-//节点
+//Node 节点
 type Node struct {
-	data Object
+	data interface{}
 	next *Node
 }
 
-//单向链表
+//List 单向链表
 type List struct {
 	head *Node
 }
 
-//从list头部添加
+//Add 从list头部添加
 func (l *List) Add(node Node) {
 	node.next, l.head = l.head, &node
 }
+
+// IsEmpty 是否为空
 func (l *List) IsEmpty() bool {
 	return l.head == nil
 }
 
+// ReversedList 翻转链表
 func (l *List) ReversedList() {
 	// 中间变量
-	var nodeNew *Node = nil
+	var nodeNew *Node
 
 	for !l.IsEmpty() {
 		//取list头处理
@@ -59,14 +58,4 @@ func (l *List) String() string {
 	result += fmt.Sprintf("%+v", node.data)
 	return result
 
-}
-
-func main() {
-	var list = List{}
-	for i := 0; i < 5; i++ {
-		list.Add(Node{data: i})
-	}
-	fmt.Println(list.String())
-	list.ReversedList()
-	fmt.Println("reverse list：", list.String())
 }
