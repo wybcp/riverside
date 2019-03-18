@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var data = []int{34, 45, 3, 6, 76, 34, 46, 809, 92, 8, 11}
+var data = []int{34, 45,10, 3, 6, 76, 34, 46, 809, 92, 8, 11}
 
 func TestQuickSort(t *testing.T) {
 	t.Log(data)

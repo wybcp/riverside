@@ -12,17 +12,17 @@ import (
 func partition(a []int, low, high int) int {
 	// 直接选取
 	pivot := a[high]
-	i := low - 1
+	i := low
 	for ; low < high; low++ {
 		if a[low] < pivot {
-			i++
 			a[low], a[i] = a[i], a[low]
+			i++
 		}
 	}
 
-	a[i+1], a[high] = pivot, a[i+1]
+	a[i], a[high] = pivot, a[i]
 
-	return i + 1
+	return i
 }
 func partitionByRand(a []int, low, high int) int {
 	// 可以随机选取，也可以前中后，三取一，避免极端情况，概率平均，应该在大量数据
@@ -44,14 +44,13 @@ func partitionByRand(a []int, low, high int) int {
 	return i + 1
 }
 
-// 无序数组中的第 K 大元素
+//GetNth 无序数组中的第 K 大元素
 func GetNth(a []int, low, high, k int) {
 	if k > high {
 		panic("wrong")
 	}
 	if low < high {
 		p := partition(a, low, high)
-		fmt.Println(p, a)
 		if k > p {
 			GetNth(a, p+1, high, k)
 		}
@@ -62,12 +61,13 @@ func GetNth(a []int, low, high, k int) {
 func QuickSort(a []int, low, high int) {
 	if low < high {
 		p := partition(a, low, high)
+		fmt.Println(a, p)
 		QuickSort(a, low, p-1)
 		QuickSort(a, p+1, high)
 	}
 }
 
-// QuickSortByRand 快排算法,随机选取pivot
+//QuickSortByRand 快排算法,随机选取pivot
 func QuickSortByRand(a []int, low, high int) {
 	if low < high {
 		p := partitionByRand(a, low, high)

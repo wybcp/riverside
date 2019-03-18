@@ -6,3 +6,5 @@ scanner
 simple_http_client
 *.log
 main.go
+main_test.go
+test
